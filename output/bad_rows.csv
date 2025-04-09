@@ -1,0 +1,5 @@
+transaction_id,customer_id,order_date,price,quantity,discount,location
+TXN_ERR,STD_XYZ,,,,,Unknown
+TXN_123,,,1000.0,3,0.1,Nowhere
+,,,,,,
+MALFORMED_LINE_NO_ID,,,,,,
