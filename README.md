@@ -18,4 +18,10 @@ set HADOOP_HOME=hadoop-3.0.0
 set PATH=%PATH%;hadoop-3.0.0\bin
 ```
 
-## Sau đó chạy process_transactions.py
+## Sau đó chạy preprocess_data.py
+
+## Sau đó chạy analysis.py
+
+## Sau đó chạy suspect_transactions.py
+
+## Sau đó chạy advanced_analysis.py
