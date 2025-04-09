@@ -1,51 +1,40 @@
-import csv
+import sys
 import random
-import string
+import pandas as pd
 from datetime import datetime, timedelta
 
-def random_string(length=6):
-    return ''.join(random.choices(string.ascii_uppercase + string.digits, k=length))
-
-def generate_transaction(student_id, index):
-    customer_id = f"STD_{student_id}"
-    transaction_id = f"TXN_{random.randint(100000, 999999)}"
-    order_date = datetime.now() - timedelta(days=random.randint(0, 365), seconds=random.randint(0, 86400))
-    price = round(random.uniform(10, 2000), 2)
-    quantity = random.randint(1, 10)
-    discount = round(random.uniform(0, 0.5), 2)  # ví dụ: 0.15 là 15% giảm giá
-    location = random.choice(["Hanoi", "Ho Chi Minh", "Da Nang", "Can Tho", "Hai Phong"])
-    return [transaction_id, customer_id, order_date.isoformat(), price, quantity, discount, location]
-
-def generate_malformed_transaction():
-    # Tạo dòng lỗi với trường thiếu hoặc sai định dạng
-    options = [
-        lambda: ["MALFORMED_LINE_NO_ID"],  # thiếu cột
-        lambda: ["TXN_ERR", "STD_XYZ", "not_a_date", "??", "x", "??", "Unknown"],  # sai định dạng
-        lambda: ["", "", "", "", "", "", ""],  # dòng rỗng
-        lambda: ["TXN_123", None, "bad_time", 1000, 3, 0.1, "Nowhere"],  # sai định dạng thời gian
-    ]
-    return random.choice(options)()
+def generate_transactions(student_id, num_records=1000000):
+    transactions = []
+    
+    start_date = datetime.now() - timedelta(days=730)  
+    
+    for i in range(num_records):
+        transaction_id = f"TXN_{i:07d}"
+        customer_id = f"STD_{student_id}"
+        order_date = start_date + timedelta(days=random.randint(0, 730))
+        price = round(random.uniform(10, 1000), 2)
+        quantity = random.randint(1, 10)
+        discount = round(random.uniform(0, 0.5), 2)
+        
+        if random.random() < 0.1:
+            if random.random() < 0.5:
+                price = "INVALID"
+            else:
+                quantity = "NaN"
+        
+        transactions.append([transaction_id, customer_id, order_date, price, quantity, discount])
+    
+    return transactions
 
 def main():
     student_id = 172100123
     filename = f"transactions_{student_id}.csv"
-
-    total_rows = 1_000_000
-    malformed_count = int(total_rows * 0.10)
-
-    print(f"Generating {total_rows} transactions...")
-    with open(filename, mode='w', newline='', encoding='utf-8') as file:
-        writer = csv.writer(file)
-        writer.writerow(["transaction_id", "customer_id", "order_date", "price", "quantity", "discount", "location"])
-
-        for i in range(total_rows):
-            if i < malformed_count:
-                row = generate_malformed_transaction()
-            else:
-                row = generate_transaction(student_id, i)
-            writer.writerow(row)
-
-    print(f"✅ File '{filename}' generated successfully.")
+    
+    data = generate_transactions(student_id)
+    df = pd.DataFrame(data, columns=["transaction_id", "customer_id", "order_date", "price", "quantity", "discount"])
+    
+    df.to_csv(filename, index=False)
+    print(f"Generated file: {filename}")
 
 if __name__ == "__main__":
     main()
